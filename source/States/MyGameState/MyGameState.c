@@ -1,6 +1,8 @@
+#include <KeypadManager.h>
 #include <string.h>
 #include <Printer.h>
 #include <Singleton.h>
+#include <SoundManager.h>
 #include <VIPManager.h>
 #include <VUEngine.h>
 
@@ -46,4 +48,11 @@ void MyGameState::print()
 	char* title = "SRAMSoundSpec";
 	FontSize textSize = Printer::getTextSize(title, "VirtualBoyExt");
 	Printer::text(title, (__SCREEN_WIDTH >> 4) - (textSize.x >> 1), 12, "VirtualBoyExt");
+}
+
+void MyGameState::processUserInput(const UserInput* userInput)
+{
+    extern SoundSpec PrecautionScreenIntroSoundSpec;
+    SoundManager::playSound(&PrecautionScreenIntroSoundSpec, NULL, kSoundPlaybackNormal, NULL);
+    Base::processUserInput(this, userInput);
 }

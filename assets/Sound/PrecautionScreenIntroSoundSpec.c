@@ -1,53 +1,47 @@
 /*
- * SRAMSoundSpec
+ * VUEngine Plugins Library
  *
- * © SylvainRx
+ * © Jorge Eremiev <jorgech3@gmail.com> and Christian Radke <c.radke@posteo.de>
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
  */
 
-#ifndef MY_GAME_STATE_H_
-#define MY_GAME_STATE_H_
-
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#include <AlignmentCheckBaseGameState.h>
-#include <GameState.h>
+#include <Sound.h>
+#include <SoundTrack.h>
+#include <WaveForms.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// CLASS' DECLARATION
+// DECLARATIONS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-///
-/// Class MyGameState
-///
-/// Inherits from GameState
-///
-/// Implements an empty game state intended to be the starting point for a new, awesome game.
-singleton class MyGameState : AlignmentCheckBaseGameState
+extern SoundTrackROMSpec PrecautionScreenIntroSoundTrack1;
+
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// DEFINITIONS
+//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+SoundTrackROMSpec* const PrecautionScreenIntroSoundTracks[] =
 {
-	/// @publicsection
+	&PrecautionScreenIntroSoundTrack1,
+	NULL
+};
 
-	/// Method to get the singleton instance
-	/// @return MyGameState singleton
-	static MyGameState getInstance();
+SoundROMSpec PrecautionScreenIntroSoundSpec =
+{
+	// Name
+	"Intro Sound",
 
-	/// Prepares the object to enter this state.
-	/// @param owner: Object that is entering in this state
-	override void enter(void* owner);
+	// Play in loop
+	false,
 
-	/// Prepares the object to become inactive in this state.
-	/// @param owner: Object that is in this state
-	override void suspend(void* owner);
+	// Tick duration in US
+	1000,
 
-	/// Prepares the object to become active in this state.
-	/// @param owner: Object that is in this state
-	override void resume(void* owner);
-
-    override void processUserInput(const UserInput* userInput);
-}
-
-#endif
+	// Tracks
+	(SoundTrackSpec**)PrecautionScreenIntroSoundTracks
+};

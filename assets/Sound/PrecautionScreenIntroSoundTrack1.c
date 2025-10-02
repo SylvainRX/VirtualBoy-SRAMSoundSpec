@@ -1,53 +1,100 @@
 /*
- * SRAMSoundSpec
+ * VUEngine Plugins Library
  *
- * © SylvainRx
+ * © Jorge Eremiev <jorgech3@gmail.com> and Christian Radke <c.radke@posteo.de>
  *
  * For the full copyright and license information, please view the LICENSE file
  * that was distributed with this source code.
  */
 
-#ifndef MY_GAME_STATE_H_
-#define MY_GAME_STATE_H_
-
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // INCLUDES
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-#include <AlignmentCheckBaseGameState.h>
-#include <GameState.h>
+#include <SoundTrack.h>
+#include <WaveForms.h>
 
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// CLASS' DECLARATION
+// DEFINITIONS
 //——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-///
-/// Class MyGameState
-///
-/// Inherits from GameState
-///
-/// Implements an empty game state intended to be the starting point for a new, awesome game.
-singleton class MyGameState : AlignmentCheckBaseGameState
+const uint8 PrecautionScreenIntroSoundTrack1SxINT[] =
 {
-	/// @publicsection
+	0x9F,
+};
 
-	/// Method to get the singleton instance
-	/// @return MyGameState singleton
-	static MyGameState getInstance();
+const uint8 PrecautionScreenIntroSoundTrack1SxLRV[] =
+{
+	0xFF,
+};
 
-	/// Prepares the object to enter this state.
-	/// @param owner: Object that is entering in this state
-	override void enter(void* owner);
+const uint16 PrecautionScreenIntroSoundTrack1SxFQ[] =
+{
+	CS4, F_5
+};
 
-	/// Prepares the object to become inactive in this state.
-	/// @param owner: Object that is in this state
-	override void suspend(void* owner);
+const uint8 PrecautionScreenIntroSoundTrack1SxEV0[] =
+{
+	0xF0,
+};
 
-	/// Prepares the object to become active in this state.
-	/// @param owner: Object that is in this state
-	override void resume(void* owner);
+const uint8 PrecautionScreenIntroSoundTrack1SxEV1[] =
+{
+	0x00, 0x01
+};
 
-    override void processUserInput(const UserInput* userInput);
-}
+const int8* const PrecautionScreenIntroSoundTrack1SxRAM[] =
+{
+	SquareWaveForm,
+};
 
-#endif
+const uint8 PrecautionScreenIntroSoundTrack1SxSWP[] =
+{
+	0x00,
+};
+
+const SoundTrackKeyframe PrecautionScreenIntroSoundTrack1Keyframes[] =
+{
+	{80, kSoundTrackEventStart},
+	{80, kSoundTrackEventSxFQ | kSoundTrackEventSxEV1},
+	{0, kSoundTrackEventEnd},
+};
+
+SoundTrackROMSpec PrecautionScreenIntroSoundTrack1 =
+{
+	/// kTrackNative, kTrackPCM
+	kTrackNative,
+
+	/// Skip if no sound source available?
+	false,
+
+	/// Total number of samples (0 if not PCM)
+	0,
+
+	/// Keyframes that define the track
+	(SoundTrackKeyframe*)PrecautionScreenIntroSoundTrack1Keyframes,
+
+	/// SxINT values
+	(uint8*)PrecautionScreenIntroSoundTrack1SxINT,
+
+	/// SxLRV values
+	(uint8*)PrecautionScreenIntroSoundTrack1SxLRV,
+
+	/// SxFQH and SxFQL values
+	(uint16*)PrecautionScreenIntroSoundTrack1SxFQ,
+
+	/// SxEV0 values
+	(uint8*)PrecautionScreenIntroSoundTrack1SxEV0,
+
+	/// SxEV1 values
+	(uint8*)PrecautionScreenIntroSoundTrack1SxEV1,
+
+	/// SxRAM pointers
+	(int8**)PrecautionScreenIntroSoundTrack1SxRAM,
+
+	/// SxSWP values
+	(uint8*)PrecautionScreenIntroSoundTrack1SxSWP,
+
+	/// SxMOD values
+	(int8**)NULL
+};
