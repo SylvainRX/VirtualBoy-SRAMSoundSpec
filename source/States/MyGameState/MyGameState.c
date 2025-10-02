@@ -1,3 +1,4 @@
+#include <GameSaveDataManager.h>
 #include <KeypadManager.h>
 #include <string.h>
 #include <Printer.h>
@@ -47,11 +48,15 @@ void MyGameState::print()
 {
 	char* title = "SRAMSoundSpec";
 	FontSize textSize = Printer::getTextSize(title, "VirtualBoyExt");
-	Printer::text(title, (__SCREEN_WIDTH >> 4) - (textSize.x >> 1), 12, "VirtualBoyExt");
+	Printer::text(title, (__SCREEN_WIDTH >> 4) - (textSize.x >> 1), 3, "VirtualBoyExt");
 }
 
 void MyGameState::processUserInput(const UserInput* userInput)
 {
+    if((K_LU) & userInput->pressedKey)
+        GameSaveDataManager::write16Bit();
+    else if((K_LD) & userInput->pressedKey)
+        PRINT_HEX(*GameSaveDataManager::pointerTo16Bit(), 10, 10);
     extern SoundSpec PrecautionScreenIntroSoundSpec;
     SoundManager::playSound(&PrecautionScreenIntroSoundSpec, NULL, kSoundPlaybackNormal, NULL);
     Base::processUserInput(this, userInput);
