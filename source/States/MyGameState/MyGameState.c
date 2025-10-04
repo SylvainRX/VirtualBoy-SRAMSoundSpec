@@ -51,13 +51,19 @@ void MyGameState::print()
 	Printer::text(title, (__SCREEN_WIDTH >> 4) - (textSize.x >> 1), 3, "VirtualBoyExt");
 }
 
+extern SoundROMSpec PrecautionScreenIntroSoundSpec;
+
 void MyGameState::processUserInput(const UserInput* userInput)
 {
     if((K_LU) & userInput->pressedKey)
-        GameSaveDataManager::write16Bit();
+        GameSaveDataManager::saveTestStruct();
     else if((K_LD) & userInput->pressedKey)
-        PRINT_HEX(*GameSaveDataManager::pointerTo16Bit(), 10, 10);
-    extern SoundSpec PrecautionScreenIntroSoundSpec;
-    SoundManager::playSound(&PrecautionScreenIntroSoundSpec, NULL, kSoundPlaybackNormal, NULL);
+    {
+        TestStruct* testStruct = GameSaveDataManager::pointerToTestStruct();
+        PRINT_TEXT(testStruct->name, 10, 8);
+        PRINT_INT(testStruct->comps[0]->id, 10, 9);
+        PRINT_INT(testStruct->comps[1]->id, 10, 10);
+    }
+
     Base::processUserInput(this, userInput);
 }

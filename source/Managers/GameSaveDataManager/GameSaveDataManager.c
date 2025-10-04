@@ -1,18 +1,5 @@
-/*
- * VUEngine Showcase
- *
- * © SylvainRx
- *
- * For the full copyright and license information, please view the LICENSE file
- * that was distributed with this source code.
- */
-
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-// INCLUDES
-//——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-
 #include <stddef.h>
-
+#include <string.h>
 #include <SRAMManager.h>
 #include <Singleton.h>
 #include <VirtualList.h>
@@ -32,75 +19,73 @@ void GameSaveDataManager::destructor()
 	Base::destructor();
 }
 
-void GameSaveDataManager::setCustomValue(uint8 customValue)
+TestStructComp compROM1 = {.id = 1};
+TestStructComp compROM2 = {.id = 2};
+
+TestStructComp* compsArray[] = { &compROM1, &compROM2 };
+
+TestStruct testROMStruct =
 {
-	if(this->sramAvailable)
-	{
-		SRAMManager::save((BYTE*)&customValue, offsetof(struct GameSaveData, someCustomValue), sizeof(customValue));
-		SaveDataManager::writeChecksum(this);
-	}
+    .name = "Test",
+    .comps = compsArray
+};
+
+static TestRAMStruct GameSaveDataManager::testRAMStructFrom(TestStruct* testStruct)
+{
+	TestRAMStructComp testRAMStructComp1 = { .id = testStruct->comps[0]->id };
+	TestRAMStructComp testRAMStructComp2 = { .id = testStruct->comps[1]->id };
+
+    TestRAMStruct testRAMStruct =
+    {
+        .comps = { testRAMStructComp1, testRAMStructComp2 }
+    };
+
+	strncpy(testRAMStruct.name, testStruct->name, sizeof(testRAMStruct.name));
+	testRAMStruct.name[sizeof(testRAMStruct.name) - 1] = '\0';
+
+    return testRAMStruct;
 }
 
-uint8 GameSaveDataManager::getCustomValue()
-{
-	uint8 customValue = 0;
-	if(this->sramAvailable)
-	{
-		SRAMManager::read((BYTE*)&customValue, offsetof(struct GameSaveData, someCustomValue), sizeof(customValue));
-	}
-
-	return customValue;
-}
-
-static void GameSaveDataManager::write16Bit()
+static void GameSaveDataManager::saveTestStruct()
 {
     GameSaveDataManager gameSaveDataManager = GameSaveDataManager::getInstance();
 
-    uint16 value = 0x1234;
-    uint16* valuePointer = &value;
-    int32 valueSize = sizeof(value);
-    int32 value16bitOffset = offsetof(struct GameSaveData, value16bit);
+    TestRAMStruct testRAMStruct = GameSaveDataManager::testRAMStructFrom(&testROMStruct);
 
-    uint16* destination = gameSaveDataManager->spaceAddress + value16bitOffset;
-    ASSERT(0 == ((int32)destination % 2), "GameSaveDataManager::save: odd destination");
+    int32 testStructOffset = offsetof(struct GameSaveData, testStruct);
+    int32 testStructSize = sizeof(struct TestRAMStruct);
 
-    for(int32 i = 0; i < valueSize; i++)
-	{
-		destination[i] = valuePointer[i];
-	}
+    PRINT_INT(testStructSize, 10, 20);
+
+    uint16* destination = gameSaveDataManager->spaceAddress + testStructOffset;
+    ASSERT(0 == ((int32)destination % 2), "GameSaveDataManager::saveTestStruct: odd destination");
+
+    uint16* source = (uint16*)&testRAMStruct;
+    ASSERT(0 == ((int32)source % 2), "GameSaveDataManager::saveTestStruct: odd source");
+
+    for(int32 i = 0; i < testStructSize; i++)
+		destination[i] = source[i];
+
+    SaveDataManager::writeChecksum(gameSaveDataManager);
 }
 
-static uint16 GameSaveDataManager::copy16Bit()
+static TestStruct* GameSaveDataManager::pointerToTestStruct()
 {
     GameSaveDataManager gameSaveDataManager = GameSaveDataManager::getInstance();
 
-    uint16 value;
-    uint16* valuePointer = &value;
-    int32 valueSize = sizeof(value);
-    int32 value16bitOffset = offsetof(struct GameSaveData, value16bit);
+    int32 testStructOffset = offsetof(struct GameSaveData, testStruct);
+    TestRAMStruct* testRAMStruct = (TestRAMStruct*)(gameSaveDataManager->spaceAddress + testStructOffset);
 
-	uint16* source = gameSaveDataManager->spaceAddress + value16bitOffset;
-	ASSERT(0 == ((int32)source % 2), "SRAMManager::constructor: odd source");
+    static TestStruct testStruct;               // Persistent instance
+    static TestStructComp* compsPointers[5];    // Persistent array of pointers
 
-	for(int32 i = 0; i < valueSize; i++)
-	{
-		valuePointer[i] = source[i];
-	}
+    // Build pointers into SRAM
+    for (int i = 0; i < 5; i++)
+        compsPointers[i] = (TestStructComp*)&testRAMStruct->comps[i];
 
-    return *valuePointer;
-}
+    // Point to SRAM memory directly
+    testStruct.name  = testRAMStruct->name;
+    testStruct.comps = compsPointers;
 
-static uint16* GameSaveDataManager::pointerTo16Bit()
-{
-    GameSaveDataManager gameSaveDataManager = GameSaveDataManager::getInstance();
-
-    uint16 value;
-    uint16* valuePointer = &value;
-    int32 valueSize = sizeof(value);
-    int32 value16bitOffset = offsetof(struct GameSaveData, value16bit);
-
-	uint16* source = gameSaveDataManager->spaceAddress + value16bitOffset;
-	ASSERT(0 == ((int32)source % 2), "SRAMManager::constructor: odd source");
-
-    return source;
+    return &testStruct;
 }
